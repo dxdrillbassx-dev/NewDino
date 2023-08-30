@@ -1,4 +1,9 @@
 name: NewDino
 version: '${project.version}'
-main: git.dxdrillbassx.newdino.NewDino
+main: git.dxdrillbassx.newdino.Plugin
 api-version: '1.17'
+
+commands:
+  newdino:
+    aliases:
+      - nd
