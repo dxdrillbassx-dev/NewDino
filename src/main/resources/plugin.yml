@@ -1,0 +1,4 @@
+name: NewDino
+version: '${project.version}'
+main: git.dxdrillbassx.newdino.NewDino
+api-version: '1.17'
