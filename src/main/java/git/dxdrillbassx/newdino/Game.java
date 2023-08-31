@@ -21,7 +21,6 @@ public class Game {
     public Game(Player player){
         field = Bukkit.createInventory(null, fieldSize);
         prepareField();
-        this.player = player;
 
         this.player.openInventory(field);
     }
@@ -30,6 +29,9 @@ public class Game {
         for (int i = 44; i < 54; i++){
             field.setItem(i, new ItemStack(ground));
         }
+
+        field.setItem(37, new ItemStack(dinoMaterial));
+        field.setItem(28, new ItemStack(dinoMaterial));
 
         player.getInventory().setItem(0, new ItemStack(jumpItem));
         player.getInventory().setItem(1, new ItemStack(sneakItem));
