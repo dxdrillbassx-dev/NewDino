@@ -16,7 +16,7 @@ public class Commands implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)){
-            return false;
+            return true;
         }
 
         Player player = (Player) sender;

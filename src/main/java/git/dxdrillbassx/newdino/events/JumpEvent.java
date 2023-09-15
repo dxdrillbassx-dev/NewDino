@@ -11,11 +11,16 @@ public class JumpEvent implements Listener {
 
     @EventHandler
     public void onJump(InventoryClickEvent event) {
-        if (event.getCurrentItem().equals(new ItemStack(Game.jumpItem))){
-            Game game = Game.getGameOfAPlayer((Player) event.getWhoClicked());
-            if (game != null){
-                game.jump();
+        if (event.getCurrentItem() != null) {
+            if (event.getCurrentItem().equals(new ItemStack(Game.jumpItem))) {
+                Game game = Game.getGameOfAPlayer((Player) event.getWhoClicked());
+                if (game !=) {
+                    game.getDino().jump();
+                }
+
+                event.setCancelled(true);
             }
         }
+
     }
 }

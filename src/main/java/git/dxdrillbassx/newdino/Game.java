@@ -5,9 +5,13 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Game {
 
@@ -30,70 +34,118 @@ public class Game {
     private Inventory field;
     private Player player;
 
+    private List<Cactus> cactusList = new ArrayList<>();
+
     private final int fieldSize = 54;
     private final Material ground = Material.GRASS_BLOCK;
 
-    private int dinoTopPos;
-    private int dinoBottomPos;
+    private final Dino dino;
 
-    public Game(Player player){
-        field = Bukkit.createInventory(null, fieldSize);
+    private int ticksPerSecond = 5;
+
+    public Game(Player player) {
+        field = Bukkit.createInventory(null,fieldSize);
         this.player = player;
         prepareField();
-        dinoBottomPos = 37;
-        dinoTopPos = 28;
+
+        dino = new Dino(this);
 
         this.player.openInventory(field);
         gameList.add(this);
+
+        startGameCycle();
     }
 
-    private void prepareField(){
-        for (int i = 44; i < 54; i++){
+    private void startGameCycle() {
+        new Thread(() -> {
+            while (true) {
+                generateCactus();
+
+                for (int i = 0; i < cactusList.size(); i++) {
+                    cactusList.get(i).move();
+                }
+
+                try {
+                    Thread.sleep(1000 / ticksPerSecond);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    private void generateCactus() {
+        Random random = new Random();
+        if (random.nextFloat() < (float) 2/9) {
+            cactusList.add(new Cactus(this));
+        }
+    }
+
+    private void prepareField() {
+        for (int i = 45; i < 54; i++) {
             field.setItem(i, new ItemStack(ground));
         }
 
         field.setItem(37, new ItemStack(dinoMaterialBottom));
         field.setItem(28, new ItemStack(dinoMaterialTop));
 
-        player.getInventory().setItem(27, new ItemStack(jumpItem));
-        player.getInventory().setItem(28, new ItemStack(sneakItem));
+        player.getInventory().setItem(9, new ItemStack(jumpItem));
+        player.getInventory().setItem(10, new ItemStack(sneakItem));
     }
 
-    public void jump(){
-        new Thread(() -> {
-            while (dinoTopPos > 9){
-                moveOneFrame(true);
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            while (dinoTopPos < 36){
-                moveOneFrame(false);
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
-    }
-
-    public void moveOneFrame(boolean isUp){
-        field.setItem(dinoTopPos, new ItemStack(Material.AIR));
-        field.setItem(dinoBottomPos, new ItemStack(Material.AIR));
+    public void moveOneFrame(boolean isUp) {
+        field.setItem(dino.getTopPos(), new ItemStack(Material.AIR));
+        field.setItem(dino.getBottomPos(), new ItemStack(Material.AIR));
         if (isUp) {
-            dinoTopPos += 1;
-            dinoBottomPos += 1;
+            dino.setTopPos(dino.getTopPos() - 9);
+            dino.setBottomPos(dino.getBottomPos() -9);
         }
         else {
-            dinoTopPos -= 1;
-            dinoBottomPos -= 1;
+            dino.setTopPos(dino.getTopPos() + 9);
+            dino.setBottomPos(dino.getBottomPos() + 9);
         }
-        field.setItem(dinoTopPos, new ItemStack(dinoMaterialTop));
-        field.setItem(dinoTopPos, new ItemStack(dinoMaterialBottom));
+        field.setItem(dino.getTopPos(), new ItemStack(dinoMaterialTop));
+        field.setItem(dino.getBottomPos(), new ItemStack(dinoMaterialBottom));
+    }
+
+    public void stopGame() {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                player.closeInventory();
+                player.sendTitle("Ты проиграл!", "Еще раз?", 40, 20, 10);
+                player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 5, 1));
+            }
+        }.runTask(Plugin.getPlugin(Plugin.class));
+
+        gameList.remove(this);
+    }
+
+    public Dino getDino() {
+        return dino;
+    }
+
+    public Inventory getField() {
+        return field;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public List<Cactus> getCactusList() {
+        return cactusList;
+    }
+
+    public int getFieldSize() {
+        return fieldSize;
+    }
+
+    public Material getGround() {
+        return ground;
+    }
+
+    public int getTicksPerSecond() {
+        return ticksPerSecond;
     }
 }
