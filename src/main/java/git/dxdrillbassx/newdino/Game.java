@@ -6,12 +6,26 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Game {
+
+    private static final List<Game> gameList = new ArrayList<>();
 
     public static final Material jumpItem = Material.RED_CONCRETE;
     public static final Material sneakItem = Material.GREEN_CONCRETE;
     public static final Material dinoMaterialTop = Material.IRON_HELMET;
     public static final Material dinoMaterialBottom = Material.IRON_BOOTS;
+
+    public static Game getGameOfAPlayer(Player player) {
+        for (Game game: gameList) {
+            if (game.player == player)
+                return game;
+        }
+
+        return null;
+    }
 
     private Inventory field;
     private Player player;
@@ -30,6 +44,7 @@ public class Game {
         dinoTopPos = 28;
 
         this.player.openInventory(field);
+        gameList.add(this);
     }
 
     private void prepareField(){
