@@ -14,7 +14,7 @@ public class JumpEvent implements Listener {
         if (event.getCurrentItem() != null) {
             if (event.getCurrentItem().equals(new ItemStack(Game.jumpItem))) {
                 Game game = Game.getGameOfAPlayer((Player) event.getWhoClicked());
-                if (game !=) {
+                if (game != null) {
                     game.getDino().jump();
                 }
 
